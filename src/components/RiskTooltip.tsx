@@ -13,13 +13,17 @@ const SIGNAL_LABELS: Record<SignalResult["signal"], string> = {
   ai_generated: "AI-Generated",
   age: "Age",
   hotspot: "Hotspot",
+  commit_complexity: "Commit Quality",
+  review_velocity: "Review Coverage",
 };
 
 const SIGNAL_WEIGHTS: Record<SignalResult["signal"], string> = {
-  size: "30%",
-  ai_generated: "25%",
-  age: "25%",
+  size: "20%",
+  ai_generated: "20%",
+  age: "15%",
   hotspot: "20%",
+  commit_complexity: "15%",
+  review_velocity: "10%",
 };
 
 const SIGNAL_BAR_COLOR: (score: number) => string = (score) => {

@@ -6,7 +6,8 @@ interface StatsBarProps {
 }
 
 /**
- * Stats strip — horizontal data row with dividers. No cards, no borders.
+ * Stats strip — Palantir-style data row.
+ * Large numbers, monospace figures, high-contrast on dark.
  */
 export default function StatsBar({
   stats,
@@ -25,20 +26,20 @@ export default function StatsBar({
       style={{
         borderTop: "1px solid var(--border)",
         borderBottom: "1px solid var(--border)",
-        marginBottom: 40,
-        padding: "16px 0",
+        marginBottom: 48,
+        padding: "20px 0",
         display: "flex",
-        alignItems: "center",
+        alignItems: "stretch",
         gap: 0,
       }}
     >
-      {/* Stat items */}
       {[
         { label: "Total", value: stats.total, color: "var(--text)" },
         { label: "Critical", value: stats.critical, color: "var(--risk-critical-dot)" },
         { label: "High", value: stats.high, color: "var(--risk-high-dot)" },
         { label: "Medium", value: stats.medium, color: "var(--risk-medium-dot)" },
         { label: "Low", value: stats.low, color: "var(--risk-low-dot)" },
+        { label: "Avg Score", value: stats.averageScore, color: "var(--muted)" },
       ].map(({ label, value, color }, i) => (
         <div
           key={label}
@@ -47,20 +48,22 @@ export default function StatsBar({
           style={{
             flex: 1,
             borderLeft: i === 0 ? "none" : "1px solid var(--border)",
-            paddingLeft: i === 0 ? 0 : 20,
-            paddingRight: 20,
+            paddingLeft: i === 0 ? 0 : 24,
+            paddingRight: 24,
           }}
         >
-          <span className="label-caps" style={{ display: "block", marginBottom: 4 }}>
+          <span className="label-caps" style={{ display: "block", marginBottom: 6 }}>
             {label}
           </span>
           <span
             style={{
-              fontSize: "1.6rem",
+              fontSize: "clamp(1.5rem, 3vw, 2rem)",
               fontWeight: 900,
-              letterSpacing: "-0.04em",
+              letterSpacing: "-0.05em",
               lineHeight: 1,
               color,
+              fontVariantNumeric: "tabular-nums",
+              display: "block",
             }}
           >
             {value}
@@ -72,7 +75,13 @@ export default function StatsBar({
       {fetchedLabel && (
         <span
           className="label-caps"
-          style={{ marginLeft: "auto", paddingLeft: 20, flexShrink: 0 }}
+          style={{
+            marginLeft: "auto",
+            paddingLeft: 24,
+            flexShrink: 0,
+            alignSelf: "flex-end",
+            color: "var(--dim)",
+          }}
           aria-label={`Last updated at ${fetchedLabel}`}
         >
           {fetchedLabel}

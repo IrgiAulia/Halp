@@ -23,14 +23,18 @@ export function computeAgeSignal(
   pr: GitHubPR,
   now: number = Date.now()
 ): SignalResult {
-  const { minHours, maxHours } = AGE_CONFIG;
+  const { minHours, maxHours, stagnationHours, stagnationBonus } = AGE_CONFIG;
 
   const createdAt = new Date(pr.created_at).getTime();
   const hoursOld = (now - createdAt) / (1000 * 60 * 60);
 
-  const score = Math.round(
+  const baseScore = Math.round(
     Math.min(1, Math.max(0, (hoursOld - minHours) / (maxHours - minHours))) * 100
   );
+
+  // Stagnation penalty: PR has been open far longer than the risk window
+  const stagnationPenalty = hoursOld > stagnationHours ? stagnationBonus : 0;
+  const score = Math.min(100, baseScore + stagnationPenalty);
 
   const hoursDisplay =
     hoursOld < 1
@@ -53,6 +57,9 @@ export function computeAgeSignal(
     details: [
       `PR opened ${hoursDisplay} ago`,
       `Risk window: ${minHours}h (low) → ${maxHours}h (high)`,
+      ...(stagnationPenalty > 0
+        ? [`Stagnant for ${Math.round(hoursOld / 24)} days — no merge after risk window (+${stagnationPenalty}pts)`]
+        : []),
     ],
   };
 }

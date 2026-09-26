@@ -2,32 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design tokens ─────────────────────────────────── */
+/* ─── Design tokens — Palantir-inspired dark system ─── */
 :root {
-  --bg:       #f5f3ef;   /* warm off-white — like teenage.engineering */
-  --surface:  #edeae3;   /* slightly darker warm surface */
-  --border:   #c8c3b8;   /* warm mid-grey border */
-  --line:     #1a1814;   /* near-black rule lines */
-  --text:     #1a1814;   /* primary text */
-  --muted:    #6b6760;   /* secondary/meta text */
-  --accent:   #1a1814;   /* accent = same black (no blue) */
+  --bg:       #0a0a0a;   /* near-black — Palantir dark canvas */
+  --surface:  #141414;   /* slightly lifted surface */
+  --surface2: #1c1c1c;   /* card / panel surface */
+  --border:   #2a2a2a;   /* subtle border */
+  --border2:  #3a3a3a;   /* hover / active border */
+  --line:     #ffffff;   /* full-contrast rule */
+  --text:     #f0ede8;   /* off-white primary — not pure #fff */
+  --muted:    #6e6e6e;   /* secondary/meta text */
+  --dim:      #444444;   /* tertiary */
+  --accent:   #e8e4dc;   /* accent = warm white */
 
-  /* Risk palette — muted, not neon */
-  --risk-critical-bg:   #1a0505;
+  /* Risk palette — vivid on dark background */
+  --risk-critical-bg:   #2a0505;
   --risk-critical-fg:   #ff4444;
   --risk-critical-dot:  #ff4444;
 
-  --risk-high-bg:       #1a0b00;
-  --risk-high-fg:       #ff7a1a;
-  --risk-high-dot:      #ff7a1a;
+  --risk-high-bg:       #2a1200;
+  --risk-high-fg:       #ff8533;
+  --risk-high-dot:      #ff8533;
 
-  --risk-medium-bg:     #1a1400;
-  --risk-medium-fg:     #f0c000;
-  --risk-medium-dot:    #f0c000;
+  --risk-medium-bg:     #2a1f00;
+  --risk-medium-fg:     #f5c842;
+  --risk-medium-dot:    #f5c842;
 
-  --risk-low-bg:        #f5f3ef;
-  --risk-low-fg:        #1a1814;
-  --risk-low-dot:       #3cb97a;
+  --risk-low-bg:        #0a0a0a;
+  --risk-low-fg:        #4ec994;
+  --risk-low-dot:       #4ec994;
 
   --font: var(--font-gabarito), "Helvetica Neue", system-ui, sans-serif;
 }
@@ -54,27 +57,27 @@ body {
 /* ─── Scrollbar ──────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); }
-::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+::-webkit-scrollbar-thumb { background: var(--border2); }
+::-webkit-scrollbar-thumb:hover { background: var(--dim); }
 
 /* ─── Focus ──────────────────────────────────────────── */
 *:focus-visible {
-  outline: 2px solid var(--text);
+  outline: 1px solid var(--text);
   outline-offset: 2px;
 }
 
 /* ─── Typography scale ───────────────────────────────── */
 .display {
-  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
   font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  letter-spacing: -0.04em;
+  line-height: 0.96;
 }
 
 .label-caps {
   font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -88,7 +91,7 @@ hr {
 /* ─── Animations ─────────────────────────────────────── */
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
+  50%       { opacity: 0.2; }
 }
 
 .animate-pulse-dot {
@@ -103,7 +106,7 @@ hr {
   animation: spin-slow 2s linear infinite;
 }
 
-/* ─── Scanning overlay ───────────────────────────── */
+/* ─── Scanning overlay ───────────────────────────────── */
 @keyframes scan-line {
   0%   { top: 0%; opacity: 1; }
   90%  { top: 100%; opacity: 1; }
@@ -139,4 +142,12 @@ hr {
 
 .scan-blink {
   animation: scan-blink 1s step-end infinite;
+}
+
+/* ─── Palantir grid lines (decorative) ───────────────── */
+.grid-bg {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
 }

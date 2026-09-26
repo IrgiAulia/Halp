@@ -7,36 +7,44 @@ describe("config", () => {
       expect(sum).toBeCloseTo(1.0, 3);
     });
 
-    it("has exactly 4 signals", () => {
-      expect(Object.keys(SIGNAL_WEIGHTS)).toHaveLength(4);
+    it("has exactly 6 signals", () => {
+      expect(Object.keys(SIGNAL_WEIGHTS)).toHaveLength(6);
     });
 
-    it("size weight is 0.30", () => {
-      expect(SIGNAL_WEIGHTS.size).toBe(0.30);
+    it("size weight is 0.20", () => {
+      expect(SIGNAL_WEIGHTS.size).toBe(0.20);
     });
 
-    it("ai_generated weight is 0.25", () => {
-      expect(SIGNAL_WEIGHTS.ai_generated).toBe(0.25);
+    it("ai_generated weight is 0.20", () => {
+      expect(SIGNAL_WEIGHTS.ai_generated).toBe(0.20);
     });
 
-    it("age weight is 0.25", () => {
-      expect(SIGNAL_WEIGHTS.age).toBe(0.25);
+    it("age weight is 0.15", () => {
+      expect(SIGNAL_WEIGHTS.age).toBe(0.15);
     });
 
     it("hotspot weight is 0.20", () => {
       expect(SIGNAL_WEIGHTS.hotspot).toBe(0.20);
+    });
+
+    it("commit_complexity weight is 0.15", () => {
+      expect(SIGNAL_WEIGHTS.commit_complexity).toBe(0.15);
+    });
+
+    it("review_velocity weight is 0.10", () => {
+      expect(SIGNAL_WEIGHTS.review_velocity).toBe(0.10);
     });
   });
 
   describe("scoreToRiskLevel", () => {
     it.each([
       [0, "low"],
-      [25, "low"],
-      [26, "medium"],
-      [50, "medium"],
-      [51, "high"],
-      [75, "high"],
-      [76, "critical"],
+      [20, "low"],
+      [21, "medium"],
+      [45, "medium"],
+      [46, "high"],
+      [70, "high"],
+      [71, "critical"],
       [100, "critical"],
     ])("score %i → %s", (score, expected) => {
       expect(scoreToRiskLevel(score)).toBe(expected);

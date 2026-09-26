@@ -1,6 +1,6 @@
 /**
  * PR Risk Radar — Scoring Engine
- * Orchestrates 4 signals into a final weighted risk score.
+ * Orchestrates 6 signals into a final weighted risk score.
  */
 
 import type { GitHubPR, ScoringResult, SignalResult } from "@/types";
@@ -9,12 +9,14 @@ import { computeSizeSignal } from "@/lib/signals/size";
 import { computeAISignal } from "@/lib/signals/ai-generated";
 import { computeAgeSignal } from "@/lib/signals/age";
 import { computeHotspotSignal } from "@/lib/signals/hotspot";
+import { computeCommitComplexitySignal } from "@/lib/signals/commit-complexity";
+import { computeReviewVelocitySignal } from "@/lib/signals/review-velocity";
 
 /**
  * Compute the full risk score for a PR.
- * All 4 signals run synchronously (pure functions, zero I/O).
+ * All 6 signals run synchronously (pure functions, zero I/O).
  *
- * @param pr - Enriched PR with files and commitList populated
+ * @param pr - Enriched PR with files, commitList, and reviewStates populated
  * @param allPRFiles - All file paths across all open PRs (for hotspot cross-PR overlap)
  * @returns Full scoring result with per-signal breakdown
  */
@@ -27,6 +29,8 @@ export function scorePR(
     computeAISignal(pr),
     computeAgeSignal(pr),
     computeHotspotSignal(pr, allPRFiles),
+    computeCommitComplexitySignal(pr),
+    computeReviewVelocitySignal(pr),
   ];
 
   const totalScore = computeWeightedScore(signals);

@@ -1,4 +1,5 @@
 import { computeHotspotSignal } from "@/lib/signals/hotspot";
+import { HOTSPOT_CONFIG } from "@/lib/config";
 import type { GitHubPR, PRFile } from "@/types";
 
 const basePR: GitHubPR = {
@@ -39,31 +40,31 @@ describe("computeHotspotSignal", () => {
   it("scores risky /auth/ path", () => {
     const pr = { ...basePR, files: [makeFile("src/auth/login.ts")] };
     const result = computeHotspotSignal(pr);
-    expect(result.score).toBeGreaterThanOrEqual(20);
+    expect(result.score).toBeGreaterThanOrEqual(HOTSPOT_CONFIG.pointsPerRiskyFile);
   });
 
   it("scores risky /payment/ path", () => {
     const pr = { ...basePR, files: [makeFile("src/payment/checkout.ts")] };
     const result = computeHotspotSignal(pr);
-    expect(result.score).toBeGreaterThanOrEqual(20);
+    expect(result.score).toBeGreaterThanOrEqual(HOTSPOT_CONFIG.pointsPerRiskyFile);
   });
 
   it("scores risky /admin/ path", () => {
     const pr = { ...basePR, files: [makeFile("app/admin/users.ts")] };
     const result = computeHotspotSignal(pr);
-    expect(result.score).toBeGreaterThanOrEqual(20);
+    expect(result.score).toBeGreaterThanOrEqual(HOTSPOT_CONFIG.pointsPerRiskyFile);
   });
 
   it("scores risky /config/ path", () => {
     const pr = { ...basePR, files: [makeFile("src/config/database.ts")] };
     const result = computeHotspotSignal(pr);
-    expect(result.score).toBeGreaterThanOrEqual(20);
+    expect(result.score).toBeGreaterThanOrEqual(HOTSPOT_CONFIG.pointsPerRiskyFile);
   });
 
   it("scores .env file", () => {
     const pr = { ...basePR, files: [makeFile(".env.production")] };
     const result = computeHotspotSignal(pr);
-    expect(result.score).toBeGreaterThanOrEqual(20);
+    expect(result.score).toBeGreaterThanOrEqual(HOTSPOT_CONFIG.pointsPerRiskyFile);
   });
 
   it("adds cross-PR overlap score", () => {

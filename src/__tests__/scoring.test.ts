@@ -39,6 +39,8 @@ describe("computeWeightedScore", () => {
       makeSignal("ai_generated", 100),
       makeSignal("age", 100),
       makeSignal("hotspot", 100),
+      makeSignal("commit_complexity", 100),
+      makeSignal("review_velocity", 100),
     ];
     expect(computeWeightedScore(signals)).toBe(100);
   });
@@ -49,25 +51,29 @@ describe("computeWeightedScore", () => {
       makeSignal("ai_generated", 0),
       makeSignal("age", 0),
       makeSignal("hotspot", 0),
+      makeSignal("commit_complexity", 0),
+      makeSignal("review_velocity", 0),
     ];
     expect(computeWeightedScore(signals)).toBe(0);
   });
 
   it("applies weights correctly for partial scores", () => {
     const signals: SignalResult[] = [
-      makeSignal("size", 100),       // 100 * 0.30 = 30
-      makeSignal("ai_generated", 0),  // 0 * 0.25 = 0
-      makeSignal("age", 0),           // 0 * 0.25 = 0
-      makeSignal("hotspot", 0),       // 0 * 0.20 = 0
+      makeSignal("size", 100),               // 100 * 0.20 = 20
+      makeSignal("ai_generated", 0),          // 0 * 0.20 = 0
+      makeSignal("age", 0),                   // 0 * 0.15 = 0
+      makeSignal("hotspot", 0),               // 0 * 0.20 = 0
+      makeSignal("commit_complexity", 0),      // 0 * 0.15 = 0
+      makeSignal("review_velocity", 0),        // 0 * 0.10 = 0
     ];
-    expect(computeWeightedScore(signals)).toBe(30);
+    expect(computeWeightedScore(signals)).toBe(20);
   });
 });
 
 describe("scorePR", () => {
-  it("returns a ScoringResult with 4 signals", () => {
+  it("returns a ScoringResult with 6 signals", () => {
     const result = scorePR(basePR);
-    expect(result.signals).toHaveLength(4);
+    expect(result.signals).toHaveLength(6);
   });
 
   it("total score is between 0 and 100", () => {
@@ -78,9 +84,9 @@ describe("scorePR", () => {
 
   it("riskLevel matches totalScore", () => {
     const result = scorePR(basePR);
-    if (result.totalScore <= 25) expect(result.riskLevel).toBe("low");
-    else if (result.totalScore <= 50) expect(result.riskLevel).toBe("medium");
-    else if (result.totalScore <= 75) expect(result.riskLevel).toBe("high");
+    if (result.totalScore <= 20) expect(result.riskLevel).toBe("low");
+    else if (result.totalScore <= 45) expect(result.riskLevel).toBe("medium");
+    else if (result.totalScore <= 70) expect(result.riskLevel).toBe("high");
     else expect(result.riskLevel).toBe("critical");
   });
 });

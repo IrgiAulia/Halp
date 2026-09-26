@@ -52,6 +52,22 @@ export function computeAISignal(pr: GitHubPR): SignalResult {
     );
   }
 
+  // --- AI commit message pattern detection ---
+  const { aiMessagePatterns, aiMessagePoints } = AI_CONFIG;
+  const aiLikeCommits = commits.filter((c) =>
+    aiMessagePatterns.some((pattern) =>
+      pattern.test(c.commit.message.split("\n")[0])
+    )
+  );
+  if (aiLikeCommits.length > 0 && !aiCoAuthor) {
+    // Only add if no explicit co-author already caught
+    const partial = Math.round(aiMessagePoints * Math.min(1, aiLikeCommits.length / 3));
+    score += partial;
+    details.push(
+      `${aiLikeCommits.length} commit message${aiLikeCommits.length > 1 ? "s" : ""} match AI writing patterns (+${partial}pts)`
+    );
+  }
+
   // --- Commit burst detection ---
   if (commits.length >= commitBurstMin) {
     const timestamps = commits

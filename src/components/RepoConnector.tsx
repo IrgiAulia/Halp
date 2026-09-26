@@ -8,7 +8,8 @@ interface RepoConnectorProps {
 }
 
 /**
- * Connect form — stark, editorial layout.
+ * Connect form — Palantir-style dark hero layout.
+ * Large uppercase headline, stark form fields, grid background.
  * PAT kept in memory only, never written to localStorage.
  */
 export default function RepoConnector({
@@ -31,13 +32,14 @@ export default function RepoConnector({
   const canSubmit = pat.trim().length > 0 && repoInput.includes("/");
 
   return (
-    <div style={{ width: "100%", maxWidth: 440 }}>
-      {/* Hero wordmark */}
-      <div style={{ marginBottom: 48 }}>
-        <div style={{ marginBottom: 20 }}>
+    <div style={{ width: "100%", maxWidth: 560 }}>
+      {/* Hero — Palantir large headline + sub */}
+      <div style={{ marginBottom: 64 }}>
+        {/* Logo */}
+        <div style={{ marginBottom: 28 }}>
           <svg
-            width={56}
-            height={56}
+            width={48}
+            height={48}
             viewBox="0 0 500 500"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -50,15 +52,32 @@ export default function RepoConnector({
             />
           </svg>
         </div>
-        <p
+
+        <h1
           style={{
-            fontSize: "1.05rem",
-            color: "var(--muted)",
-            lineHeight: 1.65,
-            maxWidth: 340,
+            fontSize: "clamp(2.4rem, 5vw, 3.6rem)",
+            fontWeight: 900,
+            letterSpacing: "-0.04em",
+            lineHeight: 0.96,
+            color: "var(--text)",
+            marginBottom: 20,
           }}
         >
-          PR risk scoring. Know which pull requests need your eyes first.
+          Know which PRs
+          <br />
+          need your eyes first.
+        </h1>
+
+        <p
+          style={{
+            fontSize: "1rem",
+            color: "var(--muted)",
+            lineHeight: 1.65,
+            maxWidth: 420,
+          }}
+        >
+          4-signal risk scoring — size, AI detection, age, hotspot overlap.
+          No setup beyond a read-only GitHub token.
         </p>
       </div>
 
@@ -72,16 +91,16 @@ export default function RepoConnector({
         <div
           style={{
             borderTop: "1px solid var(--border)",
-            paddingTop: 20,
-            paddingBottom: 20,
+            paddingTop: 22,
+            paddingBottom: 22,
           }}
         >
           <label
             htmlFor="pat-input"
             className="label-caps"
-            style={{ display: "block", marginBottom: 8 }}
+            style={{ display: "block", marginBottom: 10 }}
           >
-            Access Token
+            GitHub Access Token
           </label>
           <input
             id="pat-input"
@@ -98,22 +117,30 @@ export default function RepoConnector({
               borderBottom: "1px solid var(--border)",
               color: "var(--text)",
               fontSize: "1rem",
-              fontFamily: "var(--font)",
+              fontFamily: "monospace",
               padding: "8px 0",
               outline: "none",
+              letterSpacing: "0.02em",
+              caretColor: "var(--text)",
             }}
             aria-describedby="pat-hint"
+            onFocus={(e) => {
+              (e.currentTarget as HTMLInputElement).style.borderBottomColor = "var(--text)";
+            }}
+            onBlur={(e) => {
+              (e.currentTarget as HTMLInputElement).style.borderBottomColor = "var(--border)";
+            }}
           />
           <p
             id="pat-hint"
             style={{
-              fontSize: "0.76rem",
+              fontSize: "0.74rem",
               color: "var(--muted)",
               marginTop: 8,
               letterSpacing: "0.01em",
             }}
           >
-            Read-only <code style={{ fontFamily: "monospace" }}>repo</code> scope.
+            Read-only <code style={{ fontFamily: "monospace", color: "var(--dim)" }}>repo</code> scope.
             Kept in memory — never stored.
           </p>
         </div>
@@ -122,14 +149,14 @@ export default function RepoConnector({
         <div
           style={{
             borderTop: "1px solid var(--border)",
-            paddingTop: 20,
-            paddingBottom: 20,
+            paddingTop: 22,
+            paddingBottom: 22,
           }}
         >
           <label
             htmlFor="repo-input"
             className="label-caps"
-            style={{ display: "block", marginBottom: 8 }}
+            style={{ display: "block", marginBottom: 10 }}
           >
             Repository
           </label>
@@ -148,16 +175,24 @@ export default function RepoConnector({
               borderBottom: "1px solid var(--border)",
               color: "var(--text)",
               fontSize: "1rem",
-              fontFamily: "var(--font)",
+              fontFamily: "monospace",
               padding: "8px 0",
               outline: "none",
+              letterSpacing: "0.02em",
+              caretColor: "var(--text)",
             }}
             aria-describedby="repo-hint"
+            onFocus={(e) => {
+              (e.currentTarget as HTMLInputElement).style.borderBottomColor = "var(--text)";
+            }}
+            onBlur={(e) => {
+              (e.currentTarget as HTMLInputElement).style.borderBottomColor = "var(--border)";
+            }}
           />
           <p
             id="repo-hint"
             style={{
-              fontSize: "0.76rem",
+              fontSize: "0.74rem",
               color: "var(--muted)",
               marginTop: 8,
             }}
@@ -167,26 +202,26 @@ export default function RepoConnector({
         </div>
 
         {/* Submit */}
-        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 20 }}>
+        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 22 }}>
           <button
             type="submit"
             disabled={loading || !canSubmit}
             style={{
               width: "100%",
-              padding: "13px 24px",
-              backgroundColor: canSubmit && !loading ? "var(--text)" : "var(--border)",
+              padding: "14px 24px",
+              backgroundColor: canSubmit && !loading ? "var(--text)" : "var(--surface2)",
               color: canSubmit && !loading ? "var(--bg)" : "var(--muted)",
               border: "none",
-              fontSize: "0.9rem",
+              fontSize: "0.82rem",
               fontWeight: 700,
-              letterSpacing: "0.08em",
+              letterSpacing: "0.12em",
               textTransform: "uppercase",
               cursor: loading || !canSubmit ? "not-allowed" : "pointer",
               fontFamily: "var(--font)",
               transition: "background-color 0.15s, color 0.15s",
             }}
           >
-            {loading ? "Connecting…" : "Connect"}
+            {loading ? "Connecting…" : "Connect Repository"}
           </button>
         </div>
       </form>

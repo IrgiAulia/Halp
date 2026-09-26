@@ -20,7 +20,14 @@ import { SIZE_CONFIG } from "@/lib/config";
  * @returns SignalResult with normalized score 0–100
  */
 export function computeSizeSignal(pr: GitHubPR): SignalResult {
-  const { minLines, maxLines, manyFilesThreshold, manyFilesBonus } = SIZE_CONFIG;
+  const {
+    minLines,
+    maxLines,
+    manyFilesThreshold,
+    manyFilesBonus,
+    criticalFilesThreshold,
+    criticalFilesBonus,
+  } = SIZE_CONFIG;
 
   const totalLines = (pr.additions ?? 0) + (pr.deletions ?? 0);
   const changedFiles = pr.changed_files ?? 0;
@@ -28,8 +35,9 @@ export function computeSizeSignal(pr: GitHubPR): SignalResult {
   const baseScore =
     Math.min(1, Math.max(0, (totalLines - minLines) / (maxLines - minLines))) * 100;
 
-  const bonus = changedFiles > manyFilesThreshold ? manyFilesBonus : 0;
-  const score = Math.min(100, Math.round(baseScore + bonus));
+  const fileBonus = changedFiles > manyFilesThreshold ? manyFilesBonus : 0;
+  const criticalBonus = changedFiles > criticalFilesThreshold ? criticalFilesBonus : 0;
+  const score = Math.min(100, Math.round(baseScore + fileBonus + criticalBonus));
 
   const details: string[] = [
     `${totalLines} lines changed (${pr.additions ?? 0} additions, ${pr.deletions ?? 0} deletions)`,
@@ -38,6 +46,9 @@ export function computeSizeSignal(pr: GitHubPR): SignalResult {
 
   if (changedFiles > manyFilesThreshold) {
     details.push(`+${manyFilesBonus} bonus: more than ${manyFilesThreshold} files changed`);
+  }
+  if (changedFiles > criticalFilesThreshold) {
+    details.push(`+${criticalFilesBonus} bonus: more than ${criticalFilesThreshold} files — very broad change`);
   }
 
   const label =

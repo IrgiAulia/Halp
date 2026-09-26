@@ -29,7 +29,8 @@ function HalpLogo({ size = 24 }: { size?: number }): React.ReactElement {
 }
 
 /**
- * Sticky header — logo + "Halp" wordmark in Gabarito, then repo info.
+ * Sticky header — Palantir-style dark nav bar.
+ * Logo + wordmark tight, then repo info, then right-side controls.
  */
 export default function Header({
   connection,
@@ -53,25 +54,25 @@ export default function Header({
     >
       <div
         style={{
-          maxWidth: 960,
+          maxWidth: 1280,
           margin: "0 auto",
-          padding: "0 24px",
-          height: 52,
+          padding: "0 32px",
+          height: 56,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
           gap: 16,
         }}
       >
-        {/* Logo + wordmark */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
-          <HalpLogo size={26} />
+        {/* Logo + wordmark — tight gap */}
+        <div style={{ display: "flex", alignItems: "center", gap: 4, minWidth: 0 }}>
+          <HalpLogo size={22} />
 
           <span
             style={{
               fontFamily: "var(--font-gabarito), var(--font), sans-serif",
               fontWeight: 900,
-              fontSize: "1.1rem",
+              fontSize: "1.05rem",
               letterSpacing: "-0.03em",
               color: "var(--text)",
               lineHeight: 1,
@@ -85,27 +86,30 @@ export default function Header({
             <>
               <span
                 style={{
-                  color: "var(--border)",
+                  color: "var(--border2)",
                   fontSize: "0.85rem",
                   userSelect: "none",
-                  marginLeft: 4,
+                  marginLeft: 8,
+                  marginRight: 2,
                 }}
               >
                 /
               </span>
               <span
                 style={{
-                  fontSize: "0.78rem",
+                  fontSize: "0.76rem",
                   color: "var(--muted)",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
+                  fontFamily: "monospace",
+                  letterSpacing: "0.01em",
                 }}
               >
                 <span className="sr-only">Connected to: </span>
                 {connection.owner}/{connection.repo}
                 {connection.login && (
-                  <span style={{ marginLeft: 6, color: "var(--text)", fontWeight: 600 }}>
+                  <span style={{ marginLeft: 8, color: "var(--dim)", fontFamily: "var(--font)" }}>
                     @{connection.login}
                   </span>
                 )}
@@ -114,20 +118,21 @@ export default function Header({
           )}
         </div>
 
-        {/* Right side */}
-        <div style={{ display: "flex", alignItems: "center", gap: 14, flexShrink: 0 }}>
+        {/* Right side controls */}
+        <div style={{ display: "flex", alignItems: "center", gap: 20, flexShrink: 0 }}>
           {rateLimit && (
             <span
               style={{
-                fontSize: "0.68rem",
+                fontSize: "0.65rem",
                 fontWeight: 600,
-                letterSpacing: "0.08em",
+                letterSpacing: "0.1em",
                 textTransform: "uppercase",
                 color: rateLimitLow ? "var(--risk-critical-fg)" : "var(--muted)",
+                fontFamily: "monospace",
               }}
               aria-label={`GitHub API: ${rateLimit.remaining} of ${rateLimit.limit} requests remaining`}
             >
-              {rateLimit.remaining}/{rateLimit.limit}
+              API {rateLimit.remaining}/{rateLimit.limit}
             </span>
           )}
 
@@ -152,36 +157,51 @@ export default function Header({
                 disabled={loading}
                 aria-label="Refresh pull requests"
                 style={{
-                  fontSize: "0.75rem",
+                  fontSize: "0.72rem",
                   fontWeight: 600,
-                  letterSpacing: "0.05em",
-                  color: "var(--text)",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: loading ? "var(--dim)" : "var(--muted)",
                   background: "none",
                   border: "none",
                   cursor: loading ? "not-allowed" : "pointer",
-                  opacity: loading ? 0.4 : 1,
                   padding: "4px 0",
                   fontFamily: "var(--font)",
+                  transition: "color 0.12s",
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) (e.currentTarget as HTMLButtonElement).style.color = "var(--text)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color = loading ? "var(--dim)" : "var(--muted)";
                 }}
               >
                 Refresh
               </button>
 
-              <span style={{ color: "var(--border)", userSelect: "none" }}>·</span>
+              <span style={{ color: "var(--border2)", userSelect: "none", fontSize: "0.7rem" }}>|</span>
 
               <button
                 onClick={onDisconnect}
                 aria-label="Disconnect from repository"
                 style={{
-                  fontSize: "0.75rem",
+                  fontSize: "0.72rem",
                   fontWeight: 600,
-                  letterSpacing: "0.05em",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
                   color: "var(--muted)",
                   background: "none",
                   border: "none",
                   cursor: "pointer",
                   padding: "4px 0",
                   fontFamily: "var(--font)",
+                  transition: "color 0.12s",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--text)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)";
                 }}
               >
                 Disconnect

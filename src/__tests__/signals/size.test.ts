@@ -1,4 +1,5 @@
 import { computeSizeSignal } from "@/lib/signals/size";
+import { SIZE_CONFIG } from "@/lib/config";
 import type { GitHubPR } from "@/types";
 
 const basePR: GitHubPR = {
@@ -21,20 +22,20 @@ const basePR: GitHubPR = {
 
 describe("computeSizeSignal", () => {
   it("returns score 0 for very small PR (below minLines)", () => {
-    const pr = { ...basePR, additions: 20, deletions: 10 }; // 30 lines, below 50
+    const pr = { ...basePR, additions: 10, deletions: 10 }; // 20 lines, below minLines (30)
     const result = computeSizeSignal(pr);
     expect(result.score).toBe(0);
     expect(result.signal).toBe("size");
   });
 
   it("returns score 0 at exactly minLines boundary", () => {
-    const pr = { ...basePR, additions: 30, deletions: 20 }; // 50 lines = minLines
+    const pr = { ...basePR, additions: 15, deletions: 15 }; // 30 lines = minLines
     const result = computeSizeSignal(pr);
     expect(result.score).toBe(0);
   });
 
-  it("returns score 100 at maxLines (1000 lines)", () => {
-    const pr = { ...basePR, additions: 600, deletions: 400 }; // 1000 lines
+  it("returns score 100 at maxLines (800 lines)", () => {
+    const pr = { ...basePR, additions: 500, deletions: 300 }; // 800 lines = maxLines
     const result = computeSizeSignal(pr);
     expect(result.score).toBe(100);
   });
@@ -45,8 +46,8 @@ describe("computeSizeSignal", () => {
     expect(result.score).toBe(100);
   });
 
-  it("returns ~50 for midpoint (525 lines)", () => {
-    const pr = { ...basePR, additions: 300, deletions: 225 }; // 525 lines
+  it("returns ~50 for midpoint (415 lines)", () => {
+    const pr = { ...basePR, additions: 215, deletions: 200 }; // 415 lines = midpoint of [30, 800]
     const result = computeSizeSignal(pr);
     expect(result.score).toBeGreaterThanOrEqual(49);
     expect(result.score).toBeLessThanOrEqual(51);

@@ -56,10 +56,18 @@ export interface GitHubPR {
   deletions: number;
   changed_files: number;
   commits: number;
+  /** Number of issue/PR comments */
+  comments?: number;
+  /** Number of review-specific comments */
+  review_comments?: number;
+  /** Requested reviewer logins (populated after enrichment) */
+  requested_reviewers?: GitHubUser[];
   /** Populated after enrichment */
   files?: PRFile[];
   /** Populated after enrichment */
   commitList?: PRCommit[];
+  /** Review states from the PR reviews endpoint (e.g. APPROVED, CHANGES_REQUESTED) */
+  reviewStates?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -72,7 +80,7 @@ export type RiskLevel = "low" | "medium" | "high" | "critical";
 /** Result from a single risk signal computation */
 export interface SignalResult {
   /** Signal identifier */
-  signal: "size" | "ai_generated" | "age" | "hotspot";
+  signal: "size" | "ai_generated" | "age" | "hotspot" | "commit_complexity" | "review_velocity";
   /** Normalized score 0-100 */
   score: number;
   /** Human-readable explanation */

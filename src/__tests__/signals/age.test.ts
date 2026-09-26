@@ -23,21 +23,21 @@ const hoursAgo = (h: number) =>
   new Date(Date.now() - h * 60 * 60 * 1000).toISOString();
 
 describe("computeAgeSignal", () => {
-  it("returns score 0 for a very fresh PR (below minHours=4)", () => {
+  it("returns score 0 for a very fresh PR (below minHours=2)", () => {
     const pr = { ...basePR, created_at: hoursAgo(1) };
     const result = computeAgeSignal(pr);
     expect(result.score).toBe(0);
     expect(result.signal).toBe("age");
   });
 
-  it("returns score 0 at exactly minHours boundary (4h)", () => {
-    const pr = { ...basePR, created_at: hoursAgo(4) };
+  it("returns score 0 at exactly minHours boundary (2h)", () => {
+    const pr = { ...basePR, created_at: hoursAgo(2) };
     const result = computeAgeSignal(pr);
     expect(result.score).toBe(0);
   });
 
-  it("returns score 100 at maxHours (72h)", () => {
-    const pr = { ...basePR, created_at: hoursAgo(72) };
+  it("returns score 100 at maxHours (48h)", () => {
+    const pr = { ...basePR, created_at: hoursAgo(48) };
     const result = computeAgeSignal(pr);
     expect(result.score).toBe(100);
   });
@@ -48,8 +48,8 @@ describe("computeAgeSignal", () => {
     expect(result.score).toBe(100);
   });
 
-  it("returns ~50 for midpoint (~38h)", () => {
-    const pr = { ...basePR, created_at: hoursAgo(38) };
+  it("returns ~50 for midpoint (~25h)", () => {
+    const pr = { ...basePR, created_at: hoursAgo(25) };
     const result = computeAgeSignal(pr);
     expect(result.score).toBeGreaterThanOrEqual(49);
     expect(result.score).toBeLessThanOrEqual(51);
@@ -59,11 +59,11 @@ describe("computeAgeSignal", () => {
     const fixedNow = new Date("2024-01-10T12:00:00Z").getTime();
     const pr = {
       ...basePR,
-      created_at: new Date("2024-01-08T12:00:00Z").toISOString(), // 48h ago
+      created_at: new Date("2024-01-09T12:00:00Z").toISOString(), // 24h ago
     };
     const result = computeAgeSignal(pr, fixedNow);
-    // (48 - 4) / (72 - 4) * 100 = 44/68 * 100 ≈ 65
-    expect(result.score).toBeGreaterThanOrEqual(64);
-    expect(result.score).toBeLessThanOrEqual(66);
+    // (24 - 2) / (48 - 2) * 100 = 22/46 * 100 ≈ 48
+    expect(result.score).toBeGreaterThanOrEqual(47);
+    expect(result.score).toBeLessThanOrEqual(49);
   });
 });

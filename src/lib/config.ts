@@ -8,13 +8,16 @@ import type { RiskLevel } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Signal weights (must sum to 1.0)
+// 6 signals — rebalanced for sensitivity
 // ---------------------------------------------------------------------------
 
 export const SIGNAL_WEIGHTS = {
-  size: 0.30,
-  ai_generated: 0.25,
-  age: 0.25,
-  hotspot: 0.20,
+  size:               0.20,  // lines + files
+  ai_generated:       0.20,  // AI co-author / burst / ratio
+  age:                0.15,  // how stale the PR is
+  hotspot:            0.20,  // risky paths + cross-PR overlap
+  commit_complexity:  0.15,  // commit message quality + churn
+  review_velocity:    0.10,  // reviewer engagement signals
 } as const satisfies Record<string, number>;
 
 // Verify weights sum to 1 at module load
@@ -31,13 +34,16 @@ if (Math.abs(weightSum - 1.0) > 0.001) {
 
 export const SIZE_CONFIG = {
   /** Lines changed below this → score 0 */
-  minLines: 50,
+  minLines: 30,
   /** Lines changed above this → score 100 */
-  maxLines: 1000,
+  maxLines: 800,
   /** Files changed above this → bonus score added */
-  manyFilesThreshold: 20,
+  manyFilesThreshold: 15,
   /** Bonus points for exceeding manyFilesThreshold */
-  manyFilesBonus: 15,
+  manyFilesBonus: 20,
+  /** Files above this get an additional penalty */
+  criticalFilesThreshold: 30,
+  criticalFilesBonus: 15,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -48,21 +54,33 @@ export const AI_CONFIG = {
   /** Points awarded when co-author trailer is detected */
   coAuthorPoints: 50,
   /** Points awarded when commit burst pattern detected */
-  commitBurstPoints: 30,
+  commitBurstPoints: 35,
   /** Minutes threshold for "suspiciously fast" commit burst */
-  commitBurstMinutes: 10,
+  commitBurstMinutes: 8,
   /** Minimum commits in burst window to trigger */
   commitBurstMin: 3,
   /** Points awarded for addition/deletion ratio anomaly */
   ratioAnomalyPoints: 20,
   /** Ratio of additions to deletions above which anomaly is flagged */
-  ratioAnomalyThreshold: 20,
-  /** AI co-author patterns to detect */
+  ratioAnomalyThreshold: 15,
+  /** Additional points for commit message patterns typical of AI */
+  aiMessagePoints: 25,
+  /** AI co-author patterns to detect (matches stripped author strings and raw trailer lines) */
   coAuthorPatterns: [
-    /github-actions/i,
-    /copilot/i,
-    /\bbot\b/i,
+    /(?:co-authored-by:.*)?github-actions/i,
+    /(?:co-authored-by:.*)?copilot/i,
+    /(?:co-authored-by:.*)?\bbot\b/i,
+    /(?:co-authored-by:.*)?\[bot\]/i,
     /generated.by.*(claude|gpt|gemini|copilot|cursor)/i,
+  ],
+  /** AI-characteristic commit message patterns */
+  aiMessagePatterns: [
+    /^(feat|fix|chore|refactor|docs|style|test):.{80,}/i, // Very long conventional commits
+    /implement.*(feature|functionality|system)/i,
+    /add comprehensive/i,
+    /update.*to (handle|support|improve)/i,
+    /ensure.*(?:proper|correct|appropriate)/i,
+    /(?:robust|comprehensive|sophisticated)\s/i,
   ],
 } as const;
 
@@ -72,9 +90,12 @@ export const AI_CONFIG = {
 
 export const AGE_CONFIG = {
   /** Hours old below this → score 0 */
-  minHours: 4,
+  minHours: 2,
   /** Hours old above this → score 100 */
-  maxHours: 72,
+  maxHours: 48,
+  /** PRs open this long with no update get an extra stagnation penalty */
+  stagnationHours: 72,
+  stagnationBonus: 15,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -93,16 +114,84 @@ export const HOTSPOT_CONFIG = {
     /\/security\//i,
     /\/secret/i,
     /\/credentials/i,
+    /\/tokens?\//i,
+    /\/keys?\//i,
     /\.env/i,
     /migration/i,
     /schema\.(ts|js|sql)/i,
+    /middleware/i,
+    /\/_middleware/i,
+    /\/guards?\//i,
+    /\/interceptors?\//i,
   ],
   /** Points per risky file (capped at 100) */
-  pointsPerRiskyFile: 20,
+  pointsPerRiskyFile: 18,
   /** Points per cross-PR file overlap */
-  pointsPerOverlap: 10,
+  pointsPerOverlap: 12,
   /** Maximum overlap bonus */
   maxOverlapBonus: 40,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Commit complexity signal thresholds (NEW)
+// ---------------------------------------------------------------------------
+
+export const COMMIT_COMPLEXITY_CONFIG = {
+  /**
+   * Score is derived from:
+   * - Poor commit messages (generic, no context)
+   * - Very high commit count relative to file count
+   * - Force-push indicators (sha divergence)
+   * - Squash-heavy patterns
+   */
+
+  /** Commits that match these are flagged as low-quality */
+  genericMessagePatterns: [
+    /^(wip|fix|fixes|update|updates|misc|test|tests|temp|tmp|cleanup|clean up)\s*$/i,
+    /^(commit|changes?|stuff|asdf|qwerty|aaa+)\s*$/i,
+    /^\.+$/,  // just dots
+    /^(add|added|adds)\s*$/i,
+  ],
+  /** Points per generic commit message */
+  pointsPerGenericCommit: 12,
+  /** Cap for generic message penalty */
+  maxGenericPenalty: 48,
+
+  /** High churn = many tiny commits on same files */
+  highChurnCommitsThreshold: 8,
+  highChurnPoints: 20,
+
+  /** Ratio of commits to files — many commits / few files = churn */
+  churnRatioThreshold: 3,
+  churnRatioPoints: 15,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Review velocity signal thresholds (NEW)
+// ---------------------------------------------------------------------------
+
+export const REVIEW_VELOCITY_CONFIG = {
+  /**
+   * Score is derived from:
+   * - No reviewers assigned
+   * - PR updated very recently (may be half-baked)
+   * - Very first PR from this author (no track record)
+   * - Very high number of comments (contentious change)
+   */
+
+  /** No reviewers requested → base penalty */
+  noReviewerPoints: 40,
+
+  /** PR updated in last N minutes → "freshly pushed, not ready" penalty */
+  freshPushMinutes: 30,
+  freshPushPoints: 25,
+
+  /** Comments above this threshold → contentious PR penalty */
+  highCommentThreshold: 10,
+  highCommentPoints: 20,
+
+  /** Review changes requested → still not approved */
+  changesRequestedPoints: 35,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -114,10 +203,10 @@ export const BADGE_THRESHOLDS: Array<{
   max: number;
   level: RiskLevel;
 }> = [
-  { min: 0, max: 25, level: "low" },
-  { min: 26, max: 50, level: "medium" },
-  { min: 51, max: 75, level: "high" },
-  { min: 76, max: 100, level: "critical" },
+  { min: 0,  max: 20, level: "low" },
+  { min: 21, max: 45, level: "medium" },
+  { min: 46, max: 70, level: "high" },
+  { min: 71, max: 100, level: "critical" },
 ];
 
 /**
