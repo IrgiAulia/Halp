@@ -187,189 +187,90 @@ export default function DashboardPage(): React.ReactElement {
         }}
       >
         {!connection.isConnected ? (
-          /* ── Connect screen — two-column Palantir layout ── */
+          /* ── Connect screen ── */
           <div
             style={{
               minHeight: "calc(100vh - 56px)",
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 0,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "80px 0",
             }}
           >
-            {/* Left column — form */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "80px 64px 80px 0",
-                borderRight: "1px solid var(--border)",
-              }}
-            >
-              <div style={{ width: "100%" }}>
-                <RepoConnector onConnect={handleConnect} loading={loading} />
+            <div style={{ width: "100%", maxWidth: 560 }}>
+              <RepoConnector onConnect={handleConnect} loading={loading} />
 
-                {/* Demo mode CTA */}
-                <div
-                  style={{
-                    maxWidth: 560,
-                    marginTop: 32,
-                    paddingTop: 24,
-                    borderTop: "1px solid var(--border)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 16,
-                  }}
-                >
-                  <div>
-                    <p
-                      style={{
-                        fontSize: "0.86rem",
-                        fontWeight: 600,
-                        color: "var(--text)",
-                        marginBottom: 4,
-                      }}
-                    >
-                      No token? Try the demo
-                    </p>
-                    <p style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
-                      6 simulated PRs across all risk levels
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleDemo}
-                    style={{
-                      padding: "10px 22px",
-                      backgroundColor: "transparent",
-                      border: "1px solid var(--border2)",
-                      color: "var(--text)",
-                      fontSize: "0.76rem",
-                      fontWeight: 700,
-                      letterSpacing: "0.1em",
-                      textTransform: "uppercase",
-                      cursor: "pointer",
-                      fontFamily: "var(--font)",
-                      whiteSpace: "nowrap",
-                      flexShrink: 0,
-                      transition: "border-color 0.12s, color 0.12s",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--text)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border2)";
-                    }}
-                  >
-                    Demo →
-                  </button>
-                </div>
-
-                {error && (
+              {/* Demo mode CTA */}
+              <div
+                style={{
+                  maxWidth: 560,
+                  marginTop: 32,
+                  paddingTop: 24,
+                  borderTop: "1px solid var(--border)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 16,
+                }}
+              >
+                <div>
                   <p
-                    role="alert"
                     style={{
-                      marginTop: 16,
-                      maxWidth: 560,
-                      fontSize: "0.84rem",
-                      color: "var(--risk-critical-fg)",
-                      borderTop: "1px solid var(--border)",
-                      paddingTop: 12,
+                      fontSize: "0.86rem",
+                      fontWeight: 600,
+                      color: "var(--text)",
+                      marginBottom: 4,
                     }}
                   >
-                    {error}
+                    No token? Try the demo
                   </p>
-                )}
-              </div>
-            </div>
-
-            {/* Right column — hero text + signal list */}
-            <div
-              className="grid-bg"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                padding: "80px 0 80px 64px",
-              }}
-            >
-              {/* Big number hero */}
-              <div style={{ marginBottom: 64 }}>
-                <p className="label-caps" style={{ marginBottom: 16 }}>
-                  Risk signal engine
-                </p>
-                <div
+                  <p style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
+                    6 simulated PRs across all risk levels
+                  </p>
+                </div>
+                <button
+                  onClick={handleDemo}
                   style={{
-                    fontSize: "clamp(5rem, 10vw, 9rem)",
-                    fontWeight: 900,
-                    letterSpacing: "-0.06em",
-                    lineHeight: 0.88,
+                    padding: "10px 22px",
+                    backgroundColor: "transparent",
+                    border: "1px solid var(--border2)",
                     color: "var(--text)",
-                    opacity: 0.07,
-                    userSelect: "none",
+                    fontSize: "0.76rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    cursor: "pointer",
+                    fontFamily: "var(--font)",
+                    whiteSpace: "nowrap",
+                    flexShrink: 0,
+                    transition: "border-color 0.12s, color 0.12s",
                   }}
-                  aria-hidden="true"
-                >
-                  4
-                </div>
-                <p
-                  style={{
-                    fontSize: "1.05rem",
-                    color: "var(--muted)",
-                    lineHeight: 1.6,
-                    maxWidth: 380,
-                    marginTop: 12,
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--text)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border2)";
                   }}
                 >
-                  Four weighted signals combine into a single risk score.
-                  Know where to look before your standup.
-                </p>
+                  Demo →
+                </button>
               </div>
 
-              {/* Signal list */}
-              {[
-                { key: "SIZE", weight: "30%", desc: "Lines + files changed — large PRs are harder to review" },
-                { key: "AI", weight: "25%", desc: "Co-author detection, commit burst, ratio anomaly" },
-                { key: "AGE", weight: "25%", desc: "Stale PRs accumulate risk — review windows matter" },
-                { key: "HOTSPOT", weight: "20%", desc: "Critical paths: auth, payments, config, migrations" },
-              ].map(({ key, weight, desc }, i) => (
-                <div
-                  key={key}
+              {error && (
+                <p
+                  role="alert"
                   style={{
-                    borderTop: i === 0 ? "1px solid var(--border)" : "none",
-                    borderBottom: "1px solid var(--border)",
-                    padding: "16px 0",
-                    display: "grid",
-                    gridTemplateColumns: "56px 40px 1fr",
-                    gap: "0 16px",
-                    alignItems: "center",
+                    marginTop: 16,
+                    maxWidth: 560,
+                    fontSize: "0.84rem",
+                    color: "var(--risk-critical-fg)",
+                    borderTop: "1px solid var(--border)",
+                    paddingTop: 12,
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: "0.68rem",
-                      fontWeight: 700,
-                      letterSpacing: "0.12em",
-                      color: "var(--dim)",
-                      fontFamily: "monospace",
-                    }}
-                  >
-                    {key}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "0.78rem",
-                      fontWeight: 700,
-                      color: "var(--muted)",
-                      fontVariantNumeric: "tabular-nums",
-                    }}
-                  >
-                    {weight}
-                  </span>
-                  <span style={{ fontSize: "0.82rem", color: "var(--muted)", lineHeight: 1.5 }}>
-                    {desc}
-                  </span>
-                </div>
-              ))}
+                  {error}
+                </p>
+              )}
             </div>
           </div>
         ) : (
