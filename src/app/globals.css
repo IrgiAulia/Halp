@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design tokens ─────────────────────────────────── */
+:root {
+  --bg:       #f5f3ef;   /* warm off-white — like teenage.engineering */
+  --surface:  #edeae3;   /* slightly darker warm surface */
+  --border:   #c8c3b8;   /* warm mid-grey border */
+  --line:     #1a1814;   /* near-black rule lines */
+  --text:     #1a1814;   /* primary text */
+  --muted:    #6b6760;   /* secondary/meta text */
+  --accent:   #1a1814;   /* accent = same black (no blue) */
+
+  /* Risk palette — muted, not neon */
+  --risk-critical-bg:   #1a0505;
+  --risk-critical-fg:   #ff4444;
+  --risk-critical-dot:  #ff4444;
+
+  --risk-high-bg:       #1a0b00;
+  --risk-high-fg:       #ff7a1a;
+  --risk-high-dot:      #ff7a1a;
+
+  --risk-medium-bg:     #1a1400;
+  --risk-medium-fg:     #f0c000;
+  --risk-medium-dot:    #f0c000;
+
+  --risk-low-bg:        #f5f3ef;
+  --risk-low-fg:        #1a1814;
+  --risk-low-dot:       #3cb97a;
+
+  --font: var(--font-gabarito), "Helvetica Neue", system-ui, sans-serif;
+}
+
+/* ─── Base ───────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 17px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ─── Focus ──────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+/* ─── Typography scale ───────────────────────────────── */
+.display {
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.label-caps {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── Horizontal rule ────────────────────────────────── */
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* ─── Animations ─────────────────────────────────────── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+.animate-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 2s linear infinite;
+}
+
+/* ─── Scanning overlay ───────────────────────────── */
+@keyframes scan-line {
+  0%   { top: 0%; opacity: 1; }
+  90%  { top: 100%; opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+@keyframes scan-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scan-bar-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+@keyframes scan-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.scanning-overlay {
+  animation: scan-fade-in 0.2s ease-out forwards;
+}
+
+.scan-line {
+  animation: scan-line 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.scan-bar {
+  animation: scan-bar-fill linear forwards;
+}
+
+.scan-blink {
+  animation: scan-blink 1s step-end infinite;
+}
