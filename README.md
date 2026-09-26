@@ -202,7 +202,7 @@ Set `GITHUB_PAT` in your Vercel project environment variables (optional — user
 
 ## 🤖 Built with IBM Bob 2.0
 
-This project was conceived and developed using **IBM Bob 2.0** as an AI development partner during the IBM Bob 2.0 Hackathon (September 25–27, 2026).
+This project was conceived and planned using Claude Opus 4.6 and Claude Sonnet 5 and deployed using Gemini 3.8 Flash thru Vercel, but fully coded and developed using IBM Bob 2.0 during the IBM Bob 2.0 AI Hackathon (25-27 September 2026). AI models outside IBM was used to preserve bobcoins so that it's enough for product development.
 
 - **Category**: Developer Tools / AI-assisted Development
 - **Tech Tags**: Next.js, TypeScript, GitHub API, Risk Scoring, Code Review, AI Development Bottlenecks
