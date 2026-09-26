@@ -51,25 +51,38 @@ The risk score is calculated from **4 weighted signals**:
 
 ## ⚡ Quick Start
 
+### 🌐 Option 1: Use the Live Web App (Instant)
+
+Open the deployed web application directly at **[halp-pr.vercel.app](https://halp-pr.vercel.app)**:
+1. Enter your GitHub Personal Access Token (PAT) with `repo` scope (read-only is sufficient for public repos).
+2. Enter the repository in `owner/repo` format (e.g., `facebook/react` or your own repository).
+3. Click **Connect & Analyze** to view open pull requests prioritized and scored by risk.
+
+*(Note: Live deployment is also accessible via [halp-psi.vercel.app](https://halp-psi.vercel.app)).*
+
+---
+
+### 💻 Option 2: Run Locally
+
 ```bash
-# 1. Clone and enter the project
+# 1. Clone and enter the repository
 git clone https://github.com/IrgiAulia/Halp.git
 cd Halp
 
 # 2. Install dependencies
 npm install
 
-# 3. Copy environment file
+# 3. Configure environment variables
 cp .env.local.example .env.local
 
 # 4. (Optional) Add your GitHub PAT to .env.local
-# Or enter it in the UI at runtime — it's never stored permanently
+# You can also enter it securely in the UI at runtime — it's never stored permanently
 
 # 5. Start the development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and connect your repository.
+Open **[http://localhost:3000](http://localhost:3000)** in your browser to connect your repository.
 
 ---
 
@@ -167,17 +180,23 @@ npm run build
 
 ---
 
-## 🚀 Deployment to Vercel
+## 🚀 Deployment & Live Demo
+ 
+- **Production URL**: [https://halp-pr.vercel.app](https://halp-pr.vercel.app)
+- **Alternative URL**: [https://halp-psi.vercel.app](https://halp-psi.vercel.app)
+- **Vercel Team**: `origin-labs2`
+
+To deploy your own instance to Vercel:
 
 ```bash
-# Install Vercel CLI
+# 1. Install Vercel CLI
 npm i -g vercel
 
-# Deploy to production
+# 2. Deploy to production
 vercel --prod
 ```
 
-Set `GITHUB_PAT` in Vercel environment variables (optional — users can also enter it securely via the UI).
+Set `GITHUB_PAT` in your Vercel project environment variables (optional — users can also enter it securely via the UI at runtime).
 
 ---
 

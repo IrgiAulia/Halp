@@ -59,9 +59,9 @@ export const AI_CONFIG = {
   ratioAnomalyThreshold: 20,
   /** AI co-author patterns to detect */
   coAuthorPatterns: [
-    /co-authored-by:.*github-actions/i,
-    /co-authored-by:.*copilot/i,
-    /co-authored-by:.*bot/i,
+    /github-actions/i,
+    /copilot/i,
+    /\bbot\b/i,
     /generated.by.*(claude|gpt|gemini|copilot|cursor)/i,
   ],
 } as const;
