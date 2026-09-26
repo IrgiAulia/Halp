@@ -21,31 +21,35 @@ Review queues become unordered, and reviewers have no way to tell which PR is th
 
 ## 💡 The Solution
 
-**Halp** (PR Risk Radar) analyzes open pull requests in any GitHub repository, scores each one for risk across 4 weighted signals, and reorders the review queue by priority instead of simple time of arrival — so your team audits the critical changes first.
+**Halp** (PR Risk Radar) analyzes open pull requests in any GitHub repository, scores each one for risk across 6 weighted signals, and reorders the review queue by priority instead of simple time of arrival — so your team audits the critical changes first.
 
 ---
 
 ## ⚖️ How It Works: Risk Scoring Formula
 
-$$\text{Risk Score} = \sum_{i=1}^{4} w_i \cdot s_i(PR)$$
+$$\text{Risk Score} = \sum_{i=1}^{6} w_i \cdot s_i(PR)$$
 
-The risk score is calculated from **4 weighted signals**:
+The risk score is calculated from **6 weighted signals**:
 
 | Signal | Weight | Logic & What It Measures |
 |---|---|---|
-| 📏 **Size** | 30% | Linear scale from 50–1000 lines changed, bonus if more than 20 files |
-| 🤖 **AI-Generated** | 25% | Co-author bot detection (50pts) + commit burst ≥3 in 10min (30pts) + add/delete ratio anomaly (20pts) |
-| ⏰ **Age** | 25% | Linear scale from 4–72 hours since the PR was opened (long-lived PRs accumulate risk) |
-| 🔥 **Hotspot** | 20% | Cross-PR file overlap + risky path patterns (`/auth`, `/payment`, `/admin`, `/config`) |
+| 📏 **Size** | 20% | Linear scale from 30–800 lines changed, bonus for many/critical files |
+| 🤖 **AI-Generated** | 20% | Co-author bot detection (50pts) + commit burst ≥3 in 8min (35pts) + add/delete ratio anomaly (20pts) + AI-style commit messages (25pts) |
+| ⏰ **Age** | 15% | Linear scale from 2–48 hours since the PR was opened, extra penalty past 72h of inactivity |
+| 🔥 **Hotspot** | 20% | Cross-PR file overlap + risky path patterns (`/auth`, `/payment`, `/admin`, `/config`, `/security`, migrations, schemas, middleware) |
+| 🧩 **Commit Complexity** | 15% | Generic/low-quality commit messages, high commit-to-file churn ratio |
+| 👀 **Review Velocity** | 10% | No reviewers requested, freshly-pushed changes, high comment volume, changes-requested still unresolved |
 
 ### Badge Mapping
 
 | Score | Badge | Color | Action |
 |---|---|---|---|
-| 0–25 | 🟢 Low | Emerald | Skim or fast-track |
-| 26–50 | 🟡 Medium | Amber | Standard review |
-| 51–75 | 🟠 High | Orange | Thorough audit required |
-| 76–100 | 🔴 Critical | Red | Priority triage & senior sign-off |
+| 0–20 | 🟢 Low | Emerald | Skim or fast-track |
+| 21–45 | 🟡 Medium | Amber | Standard review |
+| 46–70 | 🟠 High | Orange | Thorough audit required |
+| 71–100 | 🔴 Critical | Red | Priority triage & senior sign-off |
+
+> Weights and thresholds are tunable in a single place: [`src/lib/config.ts`](src/lib/config.ts).
 
 ---
 
@@ -96,12 +100,14 @@ Foundation Layer
 
 Backend Layer
 ├── src/lib/github.ts       → GitHub API client (native fetch, zero octokit)
-├── src/lib/scoring.ts      → Score orchestrator (4 signals → 0-100)
+├── src/lib/scoring.ts      → Score orchestrator (6 signals → 0-100)
 └── src/lib/signals/
-    ├── size.ts             → Lines/files changed (30% weight)
-    ├── ai-generated.ts     → AI co-author + commit burst + ratio (25% weight)
-    ├── age.ts              → Hours since PR opened (25% weight)
-    └── hotspot.ts          → Risky paths + cross-PR overlap (20% weight)
+    ├── size.ts                 → Lines/files changed (20% weight)
+    ├── ai-generated.ts         → AI co-author + commit burst + ratio (20% weight)
+    ├── age.ts                  → Hours since PR opened (15% weight)
+    ├── hotspot.ts              → Risky paths + cross-PR overlap (20% weight)
+    ├── commit-complexity.ts    → Commit message quality + churn (15% weight)
+    └── review-velocity.ts      → Reviewer engagement signals (10% weight)
 
 API Routes
 ├── src/app/api/connect/    → POST — Validate PAT + repo connectivity
@@ -141,7 +147,7 @@ All scoring weights and thresholds are consolidated in [`src/lib/config.ts`](src
 
 | Layer | Choice | Rationale |
 |---|---|---|
-| Framework | Next.js 14 (App Router) | File-based API routes, modern React Server Components |
+| Framework | Next.js 16 (App Router) | File-based API routes, modern React Server Components |
 | Language | TypeScript (strict) | Zero `any` in user code, full type safety |
 | Styling | Tailwind CSS | Zero runtime CSS, clean dark theme |
 | HTTP | Native `fetch` | No axios, no octokit overhead |
@@ -157,7 +163,7 @@ All scoring weights and thresholds are consolidated in [`src/lib/config.ts`](src
 - **Input sanitized** — `owner` and `repo` validated with strict allowlist regex before URL construction
 - **No stack traces** — API routes return user-safe error messages only
 - **Method validation** — All routes return 405 for unexpected HTTP methods
-- **HTTPS enforced** — `vercel.json` sets security headers (HSTS, X-Frame-Options, CSP, etc.)
+- **Security headers** — `vercel.json` sets `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`, and `Permissions-Policy` on every response
 - **In-memory only** — GitHub PAT is never written to `localStorage` or `sessionStorage`
 
 ---
@@ -182,8 +188,7 @@ npm run build
 
 ## 🚀 Deployment & Live Demo
  
-- **Production URL**: [https://halp-pr.vercel.app](https://halp-pr.vercel.app)
-- **Alternative URL**: [https://halp-psi.vercel.app](https://halp-psi.vercel.app)
+- **Live demo**: [https://halp-pr.vercel.app](https://halp-pr.vercel.app) <!-- TODO: confirm this is the canonical URL before submitting; halp-psi.vercel.app also currently resolves to a deployment of this project -->
 - **Vercel Team**: `origin-labs2`
 
 To deploy your own instance to Vercel:
@@ -202,7 +207,7 @@ Set `GITHUB_PAT` in your Vercel project environment variables (optional — user
 
 ## 🤖 Built with IBM Bob 2.0
 
-This project was conceived and planned using Claude Opus 4.6 and Claude Sonnet 5, but fully coded and developed using IBM Bob 2.0 via Bob IDE. AI models outside IBM was used to preserve bobcoins so that it's enough for product development.
+This project was conceived and planned using Claude Opus 4.6 and Claude Sonnet 5, but fully coded and developed using **IBM Bob 2.0** via Bob IDE. AI models outside IBM was used to preserve bobcoins so that it's enough for product development.
 
 - **Category**: Developer Tools / AI-assisted Development
 - **Tech Tags**: Next.js, TypeScript, GitHub API, Risk Scoring, Code Review, AI Development Bottlenecks
