@@ -1,4 +1,4 @@
-
+![Halp Cover Image](https://github.com/IrgiAulia/Halp/blob/main/Group%2010.png?raw=true)
 # Halp
 
 **Prioritize AI-generated pull request reviews before they pile up into a bottleneck.**
